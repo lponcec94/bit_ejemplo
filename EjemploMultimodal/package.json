@@ -1,0 +1,16 @@
+{
+  "name": "asesor-impacto-social-multimodal",
+  "version": "1.0.0",
+  "description": "Asesor de impacto social con Gemini AI - Soporte Multimodal",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "multer": "^1.4.5-lts.1"
+  }
+}

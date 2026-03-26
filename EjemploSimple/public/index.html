@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asesor de Impacto Social - Gemini AI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 40px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        textarea, input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+            font-family: inherit;
+        }
+
+        textarea:focus, input:focus {
+            outline: none;
+            border-color: #4f46e5;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+            font-weight: 600;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .response {
+            margin-top: 30px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #4f46e5;
+            display: none;
+        }
+
+        .response.show {
+            display: block;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .response h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .response-section {
+            margin-bottom: 20px;
+        }
+
+        .response-section h4 {
+            color: #4f46e5;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+
+        .response-section p, .response-section li {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .response-section ul {
+            margin-left: 20px;
+        }
+
+        .loading {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+        }
+
+        .error {
+            background: #fee;
+            border-left-color: #e53e3e;
+            color: #c53030;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤝 Asesor de Impacto Social</h1>
+            <p>Obtén consejos personalizados para tu proyecto social con IA de Gemini</p>
+        </div>
+
+        <div class="main-content">
+            <form id="consultaForm">
+                <div class="form-group">
+                    <label for="contextoSocial">Contexto de tu proyecto:</label>
+                    <textarea 
+                        id="contextoSocial" 
+                        name="contextoSocial" 
+                        placeholder="Describe tu proyecto social, la comunidad que atiendes, los recursos disponibles, etc."
+                        required
+                    ></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="prompt">Tu pregunta o consulta:</label>
+                    <textarea 
+                        id="prompt" 
+                        name="prompt" 
+                        placeholder="¿Qué necesitas saber? Ej: ¿Cómo puedo mejorar mi estrategia de fundraising? ¿Qué métricas debo medir?"
+                        required
+                    ></textarea>
+                </div>
+
+                <button type="submit" class="btn" id="submitBtn">
+                    🚀 Obtener Asesoramiento
+                </button>
+            </form>
+
+            <div id="response" class="response">
+                <h3>📋 Recomendaciones Personalizadas</h3>
+                <div id="responseContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('consultaForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const responseDiv = document.getElementById('response');
+        const responseContent = document.getElementById('responseContent');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const contextoSocial = document.getElementById('contextoSocial').value;
+            const prompt = document.getElementById('prompt').value;
+
+            // Show loading state
+            submitBtn.disabled = true;
+            submitBtn.textContent = '🔄 Procesando...';
+            responseDiv.classList.remove('show', 'error');
+
+            try {
+                const response = await fetch('/api/consultar', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ prompt, contextoSocial })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Error en la respuesta del servidor');
+                }
+
+                const data = await response.json();
+                displayResponse(data);
+
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Hubo un error al procesar tu solicitud. Por favor, intenta nuevamente.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = '🚀 Obtener Asesoramiento';
+            }
+        });
+
+        function displayResponse(data) {
+            responseContent.innerHTML = `
+                <div class="response-section">
+                    <h4>💡 Respuesta:</h4>
+                    <p>${data.respuesta}</p>
+                </div>
+                
+                ${data.pasos_a_seguir && data.pasos_a_seguir.length > 0 ? `
+                    <div class="response-section">
+                        <h4>📝 Pasos a seguir:</h4>
+                        <ul>
+                            ${data.pasos_a_seguir.map(paso => `<li>${paso}</li>`).join('')}
+                        </ul>
+                    </div>
+                ` : ''}
+                
+                ${data.recursos_sugeridos && data.recursos_sugeridos.length > 0 ? `
+                    <div class="response-section">
+                        <h4>🔗 Recursos sugeridos:</h4>
+                        <ul>
+                            ${data.recursos_sugeridos.map(recurso => `<li>${recurso}</li>`).join('')}
+                        </ul>
+                    </div>
+                ` : ''}
+            `;
+            
+            responseDiv.classList.add('show');
+        }
+
+        function showError(message) {
+            responseContent.innerHTML = `<p><strong>Error:</strong> ${message}</p>`;
+            responseDiv.classList.add('show', 'error');
+        }
+    </script>
+</body>
+</html>
